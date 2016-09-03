@@ -1,3 +1,1 @@
-# memegen
-
-Desktop client for https://memegen.link.
+../README.md

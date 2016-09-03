@@ -1,5 +1,5 @@
 # Project settings
-PROJECT := MemegenDesktop
+PROJECT := memegen-desktop
 PACKAGE := memegen
 REPOSITORY := jacebrowning/memegen-desktop
 PACKAGES := $(PACKAGE) tests
@@ -9,7 +9,7 @@ MODULES := $(shell find $(PACKAGES) -name '*.py') $(CONFIG)
 # Python settings
 ifndef TRAVIS
 	PYTHON_MAJOR ?= 3
-	PYTHON_MINOR ?= 3
+	PYTHON_MINOR ?= 5
 endif
 
 # System paths
