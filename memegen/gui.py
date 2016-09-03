@@ -3,6 +3,7 @@
 import queue
 import threading
 import logging
+from io import StringIO
 
 import tkinter as tk
 from tkinter import ttk
@@ -11,19 +12,17 @@ try:
     import speech_recognition  # pylint: disable=import-error
 except ImportError:
     speech_recognition = None
+import requests
 
-from memegen import __project__, __version__
-from memegen.settings import ProdConfig
-from memegen.app import create_app
-from memegen.domain import Text
+from . import __version__
+
 
 log = logging.getLogger(__name__)
 
 
 class Application:
 
-    def __init__(self, app):
-        self.app = app
+    def __init__(self):
         self.label = None
         self.text = None
         self._image = None
@@ -32,7 +31,7 @@ class Application:
 
         # Configure root window
         self.root = tk.Tk()
-        self.root.title("{} (v{})".format(__project__, __version__))
+        self.root.title("{} (v{})".format("MemeGen Dekstop", __version__))
         self.root.minsize(500, 500)
 
         # Configure speech recognition
@@ -116,28 +115,28 @@ class Application:
             self.clear()
             self.text.insert(0, value)
 
-        text = Text(self.text.get())
-        ratio = 0
-        match = None
+        base = "https://memegen.link/magic/{}"
+        url = base.format(self.text.get())
 
-        for template in self.app.template_service.all():
-            _ratio, path = template.match(str(text).lower())
-            if _ratio > ratio:
-                ratio = _ratio
-                log.info("Matched at %s: %s - %s", ratio, template, path)
-                match = template, Text(path)
+        log.info("Finding matches: %s", url)
+        response = requests.get(url)
 
-        if match:
-            domain = self.app.image_service.create(*match)
-            image = Image.open(domain.path)
+        matches = response.json()
+        if matches:
+
+            url = matches[0]['link'] + '.jpg'
+            log.info("Getting image: %s", url)
+            response = requests.get(url, stream=True)
+
+            image = Image.open(response.raw)
             old_size = image.size
             max_size = self.root.winfo_width(), self.root.winfo_height()
             ratio = min(max_size[0] / old_size[0], max_size[1] / old_size[1])
             new_size = [int(s * ratio * 0.9) for s in old_size]
             image = image.resize(new_size, Image.ANTIALIAS)
+
             self._image = ImageTk.PhotoImage(image)
             self.label.configure(image=self._image)
-
             self.clear()
 
         self.restart(update=True, clear=False)
@@ -217,7 +216,11 @@ class SpeechRecognizer(threading.Thread):
         return speech
 
 
+def main():
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger('requests').setLevel(logging.WARNING)
+    Application()
+
+
 if __name__ == '__main__':
-    api = create_app(ProdConfig)
-    with api.app_context():
-        Application(api)
+    main()
