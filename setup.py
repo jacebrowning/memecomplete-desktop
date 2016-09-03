@@ -23,9 +23,10 @@ def read_package_variable(key):
     module_path = os.path.join(PACKAGE_NAME, '__init__.py')
     with open(module_path) as module:
         for line in module:
-            parts = line.split(' ')
+            parts = line.strip().split(' ')
             if parts and parts[0] == key:
-                return parts[-1]
+                return parts[-1].strip("'")
+    assert 0, "{0} not found in {1}".format(key, module_path)
 
 
 def read_descriptions():
@@ -41,7 +42,7 @@ def read_descriptions():
 
 check_python_version()
 setuptools.setup(
-    name=read_package_variable('__package__'),
+    name=read_package_variable('__project__'),
     version=read_package_variable('__version__'),
 
     description="Desktop client for https://memegen.link.",
