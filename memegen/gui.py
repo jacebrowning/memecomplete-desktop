@@ -1,5 +1,6 @@
 #!env/bin/python
 
+import time
 import queue
 import threading
 import logging
@@ -115,20 +116,14 @@ class Application:
             self.clear()
             self.text.insert(0, value)
 
-        base = "https://memegen.link/magic/{}"
-        url = base.format(self.text.get())
+        text = self.text.get()
+        if not text:
+            return
 
-        log.info("Finding matches: %s", url)
-        response = requests.get(url)
+        matches = self._get_matches(text)
 
-        matches = response.json()
         if matches:
-
-            url = matches[0]['link'] + '.jpg'
-            log.info("Getting image: %s", url)
-            response = requests.get(url, stream=True)
-
-            image = Image.open(response.raw)
+            image = Image.open(self._get_image())
             old_size = image.size
             max_size = self.root.winfo_width(), self.root.winfo_height()
             ratio = min(max_size[0] / old_size[0], max_size[1] / old_size[1])
@@ -140,6 +135,25 @@ class Application:
             self.clear()
 
         self.restart(update=True, clear=False)
+
+    @staticmethod
+    def _get_matches(text):
+        base = "https://memegen.link/magic/{}"
+        url = base.format(text)
+
+        log.info("Finding matches: %s", url)
+        response = requests.get(url)
+
+        return response.json()
+
+    @staticmethod
+    def _get_image(matches):
+        url = matches[0]['link'] + '.jpg'
+
+        log.info("Getting image: %s", url)
+        response = requests.get(url, stream=True)
+
+        return response.raw
 
     def clear(self, *_):
         self.text.delete(0, tk.END)
@@ -158,6 +172,7 @@ class Application:
     def close(self):
         log.info("Closing the application...")
         self._event.set()
+        time.sleep(0.1)
         self._speech_recognizer.join()
         self.root.destroy()
 
@@ -172,15 +187,9 @@ class SpeechRecognizer(threading.Thread):
         self.recognizer = None
 
     def run(self):
-        if not speech_recognition:
-            return
-        self.configure()
-        while not self.event.is_set():
-            audio = self.listen()
-            if audio:
-                result = self.recognize(audio)
-                if result:
-                    self.queue.put(result)
+        if speech_recognition:
+            self.configure()
+            self.loop()
 
     def configure(self):
         self.recognizer = speech_recognition.Recognizer()
@@ -191,6 +200,20 @@ class SpeechRecognizer(threading.Thread):
             log.info("Adjusting for ambient noise...")
             self.recognizer.adjust_for_ambient_noise(source, duration=3)
             log.info("Engery threshold: %s", self.recognizer.energy_threshold)
+
+    def loop(self):
+        while not self.event.is_set():
+            audio = self.listen()
+            if self.event.is_set():
+                break
+
+            if audio:
+                result = self.recognize(audio)
+                if self.event.is_set():
+                    break
+
+                if result:
+                    self.queue.put(result)
 
     def listen(self):
         log.info("Listening for audio...")
