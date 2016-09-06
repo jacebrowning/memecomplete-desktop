@@ -63,6 +63,10 @@ HONCHO := $(ACTIVATE) && $(BIN_)honcho
 .PHONY: all
 all: doc
 
+.PHONY: run
+run: depends
+	$(BIN)/memegen
+
 .PHONY: ci
 ci: check test ## Run all tasks that determine CI status
 

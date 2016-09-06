@@ -9,6 +9,8 @@ Desktop client for https://memegen.link.
 ## Requirements
 
 * Python 3.3+
+* SpeechRecognition requirements: https://github.com/Uberi/speech_recognition#requirements
+  * macOS: `$ brew install flac portaudio swig`
 
 ## Installation
 
