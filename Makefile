@@ -246,7 +246,7 @@ exe: depends $(PROJECT).spec
 	$(PYINSTALLER) $(PROJECT).spec --noconfirm --clean
 
 $(PROJECT).spec:
-	$(PYINSTALLER_MAKESPEC) $(PACKAGE)/__main__.py --noupx --onefile --windowed --name=$(PROJECT)
+	$(PYINSTALLER_MAKESPEC) $(PACKAGE)/gui.py --noupx --onefile --windowed --name=$(PROJECT)
 
 # RELEASE ######################################################################
 
