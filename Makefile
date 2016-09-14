@@ -64,14 +64,14 @@ HONCHO := $(ACTIVATE) && $(BIN_)honcho
 all: doc
 
 .PHONY: run
-run: depends
+run: install
 	$(BIN)/memegen
 
 .PHONY: ci
 ci: check test ## Run all tasks that determine CI status
 
 .PHONY: watch
-watch: depends .clean-test ## Continuously run all CI tasks when files chanage
+watch: install .clean-test ## Continuously run all CI tasks when files chanage
 	$(SNIFFER)
 
 # SYSTEM DEPENDENCIES ##########################################################
@@ -83,29 +83,19 @@ doctor:  ## Confirm system dependencies are available
 
 # PROJECT DEPENDENCIES #########################################################
 
-DEPENDS := $(ENV)/.depends
-DEPENDS_CI := $(ENV)/.depends-ci
-DEPENDS_DEV := $(ENV)/.depends-dev
+DEPS_CI := $(ENV)/.install-ci
+DEPS_DEV := $(ENV)/.install-dev
+DEPS_BASE := $(ENV)/.install-base
 
-env: $(PYTHON)
+.PHONY: install
+install: $(DEPS_CI) $(DEPS_DEV) $(DEPS_BASE) ## Install all project dependencies
 
-$(PYTHON):
-	$(SYS_PYTHON) -m venv $(ENV)
-	$(PYTHON) -m pip install --upgrade pip setuptools
-
-.PHONY: depends
-depends: env $(DEPENDS) $(DEPENDS_CI) $(DEPENDS_DEV) ## Install all project dependencies
-
-$(DEPENDS): setup.py requirements.txt
-	$(PYTHON) setup.py develop
+$(DEPS_CI): requirements/ci.txt $(PIP)
+	$(PIP) install --upgrade -r $<
 	@ touch $@  # flag to indicate dependencies are installed
 
-$(DEPENDS_CI): requirements/ci.txt
-	$(PIP) install --upgrade -r $^
-	@ touch $@  # flag to indicate dependencies are installed
-
-$(DEPENDS_DEV): requirements/dev.txt
-	$(PIP) install --upgrade -r $^
+$(DEPS_DEV): requirements/dev.txt $(PIP)
+	$(PIP) install --upgrade -r $<
 ifdef WINDOWS
 	@ echo "Manually install pywin32: https://sourceforge.net/projects/pywin32/files/pywin32"
 else ifdef MAC
@@ -114,6 +104,16 @@ else ifdef LINUX
 	$(PIP) install --upgrade pyinotify
 endif
 	@ touch $@  # flag to indicate dependencies are installed
+
+$(DEPS_BASE): setup.py requirements.txt $(PYTHON)
+	$(PYTHON) setup.py develop
+	@ touch $@  # flag to indicate dependencies are installed
+
+$(PIP): $(PYTHON)
+	$(PYTHON) -m pip install --upgrade pip setuptools
+
+$(PYTHON):
+	$(SYS_PYTHON) -m venv $(ENV)
 
 # CHECKS #######################################################################
 
@@ -126,19 +126,19 @@ PYLINT := $(BIN_)pylint
 check: pep8 pep257 pylint ## Run linters and static analysis
 
 .PHONY: pep8
-pep8: depends ## Check for convention issues
+pep8: install ## Check for convention issues
 	$(PEP8) $(PACKAGES) $(CONFIG) --config=.pep8rc
 
 .PHONY: pep257
-pep257: depends ## Check for docstring issues
+pep257: install ## Check for docstring issues
 	$(PEP257) $(PACKAGES) $(CONFIG)
 
 .PHONY: pylint
-pylint: depends ## Check for code issues
+pylint: install ## Check for code issues
 	$(PYLINT) $(PACKAGES) $(CONFIG) --rcfile=.pylintrc
 
 .PHONY: fix
-fix: depends
+fix: install
 	$(PEP8RADIUS) --docformatter --in-place
 
 # TESTS ########################################################################
@@ -157,40 +157,29 @@ PYTEST_OPTS := $(PYTEST_CORE_OPTS) $(PYTEST_COV_OPTS) $(PYTEST_RANDOM_OPTS)
 PYTEST_OPTS_FAILFAST := $(PYTEST_OPTS) --last-failed --exitfirst
 
 FAILURES := .cache/v/cache/lastfailed
+REPORTS ?= xmlreport
 
 .PHONY: test
 test: test-all
 
 .PHONY: test-unit
-test-unit: depends ## Run the unit tests
+test-unit: install ## Run the unit tests
 	@- mv $(FAILURES) $(FAILURES).bak
-	$(PYTEST) $(PYTEST_OPTS) $(PACKAGE)
+	$(PYTEST) $(PYTEST_OPTS) $(PACKAGE) --junitxml=$(REPORTS)/unit.xml
 	@- mv $(FAILURES).bak $(FAILURES)
-ifndef TRAVIS
-ifndef APPVEYOR
 	$(COVERAGE_SPACE) $(REPOSITORY) unit
-endif
-endif
 
 .PHONY: test-int
-test-int: depends ## Run the integration tests
+test-int: install ## Run the integration tests
 	@ if test -e $(FAILURES); then $(PYTEST) $(PYTEST_OPTS_FAILFAST) tests; fi
-	$(PYTEST) $(PYTEST_OPTS) tests
-ifndef TRAVIS
-ifndef APPVEYOR
+	$(PYTEST) $(PYTEST_OPTS) tests --junitxml=$(REPORTS)/integration.xml
 	$(COVERAGE_SPACE) $(REPOSITORY) integration
-endif
-endif
 
 .PHONY: test-all
-test-all: depends ## Run all the tests
+test-all: install ## Run all the tests
 	@ if test -e $(FAILURES); then $(PYTEST) $(PYTEST_OPTS_FAILFAST) $(PACKAGES); fi
-	$(PYTEST) $(PYTEST_OPTS) $(PACKAGES)
-ifndef TRAVIS
-ifndef APPVEYOR
+	$(PYTEST) $(PYTEST_OPTS) $(PACKAGES) --junitxml=$(REPORTS)/overall.xml
 	$(COVERAGE_SPACE) $(REPOSITORY) overall
-endif
-endif
 
 .PHONY: read-coverage
 read-coverage:
@@ -209,20 +198,20 @@ MKDOCS_INDEX := site/index.html
 doc: uml pdoc mkdocs ## Run documentation generators
 
 .PHONY: uml
-uml: depends docs/*.png ## Generate UML diagrams for classes and packages
+uml: install docs/*.png ## Generate UML diagrams for classes and packages
 docs/*.png: $(MODULES)
 	$(PYREVERSE) $(PACKAGE) -p $(PACKAGE) -a 1 -f ALL -o png --ignore tests
 	- mv -f classes_$(PACKAGE).png docs/classes.png
 	- mv -f packages_$(PACKAGE).png docs/packages.png
 
 .PHONY: pdoc
-pdoc: depends $(PDOC_INDEX)  ## Generate API documentaiton with pdoc
+pdoc: install $(PDOC_INDEX)  ## Generate API documentaiton with pdoc
 $(PDOC_INDEX): $(MODULES)
 	$(PDOC) --html --overwrite $(PACKAGE) --html-dir docs/apidocs
 	@ touch $@
 
 .PHONY: mkdocs
-mkdocs: depends $(MKDOCS_INDEX) ## Build the documentation site with mkdocs
+mkdocs: install $(MKDOCS_INDEX) ## Build the documentation site with mkdocs
 $(MKDOCS_INDEX): mkdocs.yml docs/*.md
 	ln -sf `realpath README.md --relative-to=docs` docs/index.md
 	ln -sf `realpath CHANGELOG.md --relative-to=docs/about` docs/about/changelog.md
@@ -235,13 +224,30 @@ mkdocs-live: mkdocs ## Launch and continuously rebuild the mkdocs site
 	eval "sleep 3; open http://127.0.0.1:8000" &
 	$(MKDOCS) serve
 
+%.rst: %.md
+	pandoc -f markdown_github -t rst -o $@ $<
+
 # BUILD ########################################################################
 
 PYINSTALLER := $(BIN_)pyinstaller
 PYINSTALLER_MAKESPEC := $(BIN_)pyi-makespec
 
+.PHONY: sdist
+sdist: install dist/*.tar.gz
+dist/*.tar.gz: $(MODULES) README.rst CHANGELOG.rst
+	rm -f dist/*.tar.gz
+	$(PYTHON) setup.py check --restructuredtext --strict --metadata
+	$(PYTHON) setup.py sdist
+
+.PHONY: bdist
+bdist: install dist/*.whl
+dist/*.whl: $(MODULES) README.rst CHANGELOG.rst
+	rm -f dist/*.whle
+	$(PYTHON) setup.py check --restructuredtext --strict --metadata
+	$(PYTHON) setup.py bdist_wheel
+
 .PHONY: exe
-exe: depends $(PROJECT).spec
+exe: install $(PROJECT).spec
 	# For framework/shared support: https://github.com/yyuu/pyenv/wiki
 	$(PYINSTALLER) $(PROJECT).spec --noconfirm --clean
 
@@ -250,25 +256,18 @@ $(PROJECT).spec:
 
 # RELEASE ######################################################################
 
-.PHONY: register-test
-register-test: README.rst CHANGELOG.rst ## Register the project on the test PyPI
-	$(PYTHON) setup.py register --strict --repository https://testpypi.python.org/pypi
+TWINE := $(BIN_)twine
 
 .PHONY: register
-register: README.rst CHANGELOG.rst ## Register the project on PyPI
-	$(PYTHON) setup.py register --strict
-
-.PHONY: upload-test
-upload-test: register-test ## Upload the current version to the test PyPI
-	$(PYTHON) setup.py sdist upload --repository https://testpypi.python.org/pypi
-	$(PYTHON) setup.py bdist_wheel upload --repository https://testpypi.python.org/pypi
-	$(OPEN) https://testpypi.python.org/pypi/$(PROJECT)
+register: sdist bdist ## Register the project on PyPI
+	@ echo NOTE: your project must be registered manually
+	@ echo https://github.com/pypa/python-packaging-user-guide/issues/263
+	# TODO: switch to twine when the above issue is resolved
+	# $(TWINE) register dist/*.whl
 
 .PHONY: upload
 upload: .git-no-changes register ## Upload the current version to PyPI
-	$(PYTHON) setup.py check --restructuredtext --strict --metadata
-	$(PYTHON) setup.py sdist upload
-	$(PYTHON) setup.py bdist_wheel upload
+	$(TWINE) upload dist/*
 	$(OPEN) https://pypi.python.org/pypi/$(PROJECT)
 
 .PHONY: .git-no-changes
@@ -281,9 +280,6 @@ upload: .git-no-changes register ## Upload the current version to PyPI
 		echo Commit your changes and try again.;  \
 		exit -1;                                  \
 	fi;
-
-%.rst: %.md
-	pandoc -f markdown_github -t rst -o $@ $<
 
 # CLEANUP ######################################################################
 
@@ -305,7 +301,7 @@ clean-all: clean .clean-env .clean-workspace
 
 .PHONY: .clean-test
 .clean-test:
-	rm -rf .cache .pytest .coverage htmlcov
+	rm -rf .cache .pytest .coverage htmlcov xmlreport
 
 .PHONY: .clean-dist
 .clean-dist:

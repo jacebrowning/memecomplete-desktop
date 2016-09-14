@@ -4,7 +4,6 @@ import time
 import queue
 import threading
 import logging
-from io import StringIO
 
 import tkinter as tk
 from tkinter import ttk
@@ -21,7 +20,7 @@ from . import __version__
 log = logging.getLogger(__name__)
 
 
-class Application:
+class Application:  # pylint: disable=too-many-instance-attributes
 
     def __init__(self):
         self.label = None
@@ -123,7 +122,7 @@ class Application:
         matches = self._get_matches(text)
 
         if matches:
-            image = Image.open(self._get_image())
+            image = Image.open(self._get_image(matches))
             old_size = image.size
             max_size = self.root.winfo_width(), self.root.winfo_height()
             ratio = min(max_size[0] / old_size[0], max_size[1] / old_size[1])

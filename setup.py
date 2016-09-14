@@ -26,7 +26,7 @@ def read_package_variable(key):
             parts = line.strip().split(' ')
             if parts and parts[0] == key:
                 return parts[-1].strip("'")
-    assert 0, "{0} not found in {1}".format(key, module_path)
+    assert 0, "'{0}' not found in '{1}'".format(key, module_path)
 
 
 def read_descriptions():
@@ -59,8 +59,12 @@ setuptools.setup(
     long_description=read_descriptions(),
     license='MIT',
     classifiers=[
-        # TODO: update this list to match your application: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'Development Status :: 1 - Planning',
+        'Development Status :: 3 - Alpha',
+        'Environment :: MacOS X',
+        'Environment :: Win32 (MS Windows)',
+        'Environment :: X11 Applications',
+        'Intended Audience :: End Users/Desktop',
+        'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
@@ -68,6 +72,8 @@ setuptools.setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Topic :: Games/Entertainment',
+        'Topic :: Multimedia',
     ],
 
     install_requires=open("requirements.txt").readlines(),
