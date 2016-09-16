@@ -4,9 +4,10 @@ import time
 import queue
 import threading
 import logging
-
 import tkinter as tk
 from tkinter import ttk
+
+import click
 from PIL import Image, ImageTk
 try:
     import speech_recognition  # pylint: disable=import-error
@@ -23,6 +24,8 @@ log = logging.getLogger(__name__)
 class Application:  # pylint: disable=too-many-instance-attributes
 
     def __init__(self):
+        log.info("Starting the application...")
+
         self.label = None
         self.text = None
         self._image = None
@@ -189,8 +192,12 @@ class SpeechRecognizer(threading.Thread):
         if speech_recognition:
             self.configure()
             self.loop()
+        else:
+            log.info("Speech recognition disabled")
+            self.event.wait()
 
     def configure(self):
+        log.info("Configuring speech recognition...")
         self.recognizer = speech_recognition.Recognizer()
         self.recognizer.energy_threshold = 1500
         self.recognizer.dynamic_energy_adjustment_ratio = 3
@@ -201,6 +208,7 @@ class SpeechRecognizer(threading.Thread):
             log.info("Engery threshold: %s", self.recognizer.energy_threshold)
 
     def loop(self):
+        log.info("Starting speech recognition loop...")
         while not self.event.is_set():
             audio = self.listen()
             if self.event.is_set():
@@ -238,9 +246,18 @@ class SpeechRecognizer(threading.Thread):
         return speech
 
 
-def main():
+@click.command()
+@click.option('--speech/--no-speech', default=True)
+def main(speech=True):
+    global speech_recognition
+
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('requests').setLevel(logging.WARNING)
+
+    if not speech:
+        log.info("Disabling speech recognition...")
+        speech_recognition = None
+
     Application()
 
 
