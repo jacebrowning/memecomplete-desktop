@@ -140,7 +140,7 @@ class Application:  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def _get_matches(text):
-        base = "https://memegen.link/magic/{}"
+        base = "https://memegen.link/api/magic/{}"
         url = base.format(text)
 
         log.info("Finding matches: %s", url)
@@ -150,7 +150,7 @@ class Application:  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def _get_image(matches):
-        url = matches[0]['link'] + '.jpg'
+        url = matches[0]['link'].replace("api/templates/", "") + '.jpg'
 
         log.info("Getting image: %s", url)
         response = requests.get(url, stream=True)
