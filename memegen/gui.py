@@ -140,10 +140,14 @@ class Application:  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def _get_matches(text):
-        url = f"https://memecomplete.herokuapp.com/api/memes/?text={text}"
+        url = f"https://memecomplete.herokuapp.com/api/memes/"
+        data = dict(
+            text=text,
+            source='memegen-desktop',
+        )
 
-        log.info("Finding matches: %s", url)
-        response = requests.get(url)
+        log.info("Finding matches: %s %s", url, data)
+        response = requests.get(url, params=data)
 
         return response.json()
 
