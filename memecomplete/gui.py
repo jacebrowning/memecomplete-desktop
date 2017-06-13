@@ -140,7 +140,7 @@ class Application:  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def _get_matches(text):
-        url = f"https://memecomplete.herokuapp.com/api/memes/"
+        url = "https://memecomplete.herokuapp.com/api/memes/"
         data = dict(
             text=text,
             source='memecomplete-desktop',
@@ -202,7 +202,7 @@ class SpeechRecognizer(threading.Thread):
     def configure(self):
         log.info("Configuring speech recognition...")
         self.recognizer = speech_recognition.Recognizer()
-        self.recognizer.energy_threshold = 1500
+        self.recognizer.git  = 1500
         self.recognizer.dynamic_energy_adjustment_ratio = 3
         self.microphone = speech_recognition.Microphone()
         with self.microphone as source:
