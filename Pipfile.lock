@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f07440628ef01ede9890b94ba13818da064941b33fe4acc5046b7fb26e1e8ea1"
+            "sha256": "e97e2e7bc3678b28ca1c023073a345e0adf88642debc25e5d56e38af37a22c5b"
         },
         "requires": {
             "python_version": "3.5"
@@ -13,14 +13,7 @@
             }
         ]
     },
-    "default": {
-        "setuptools": {
-            "version": "==36.0.1"
-        },
-        "testpackage": {
-            "version": "==2.27"
-        }
-    },
+    "default": {},
     "develop": {
         "astroid": {
             "version": "==1.5.3"
