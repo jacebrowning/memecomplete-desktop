@@ -34,7 +34,7 @@ class Application:  # pylint: disable=too-many-instance-attributes
 
         # Configure root window
         self.root = tk.Tk()
-        self.root.title("{} (v{})".format("MemeGen Dekstop", __version__))
+        self.root.title("{} (v{})".format("Meme Complete Dekstop", __version__))
         self.root.minsize(500, 500)
 
         # Configure speech recognition
@@ -143,7 +143,7 @@ class Application:  # pylint: disable=too-many-instance-attributes
         url = f"https://memecomplete.herokuapp.com/api/memes/"
         data = dict(
             text=text,
-            source='memegen-desktop',
+            source='memecomplete-desktop',
         )
 
         log.info("Finding matches: %s %s", url, data)

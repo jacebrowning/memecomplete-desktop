@@ -1,14 +1,14 @@
-Unix: [![Unix Build Status](http://img.shields.io/travis/jacebrowning/memegen-desktop/master.svg)](https://travis-ci.org/jacebrowning/memegen-desktop) Windows: [![Windows Build Status](https://img.shields.io/appveyor/ci/jacebrowning/memegen-desktop/master.svg)](https://ci.appveyor.com/project/jacebrowning/memegen-desktop)<br>Metrics: [![Coverage Status](http://img.shields.io/coveralls/jacebrowning/memegen-desktop/master.svg)](https://coveralls.io/r/jacebrowning/memegen-desktop) [![Scrutinizer Code Quality](http://img.shields.io/scrutinizer/g/jacebrowning/memegen-desktop.svg)](https://scrutinizer-ci.com/g/jacebrowning/memegen-desktop/?branch=master)<br>Usage: [![PyPI Version](http://img.shields.io/pypi/v/memegen-desktop.svg)](https://pypi.python.org/pypi/memegen-desktop) [![PyPI Downloads](http://img.shields.io/pypi/dm/memegen-desktop.svg)](https://pypi.python.org/pypi/memegen-desktop)
+Unix: [![Unix Build Status](http://img.shields.io/travis/jacebrowning/memecomplete-desktop/master.svg)](https://travis-ci.org/jacebrowning/memecomplete-desktop) Windows: [![Windows Build Status](https://img.shields.io/appveyor/ci/jacebrowning/memecomplete-desktop/master.svg)](https://ci.appveyor.com/project/jacebrowning/memecomplete-desktop)<br>Metrics: [![Coverage Status](http://img.shields.io/coveralls/jacebrowning/memecomplete-desktop/master.svg)](https://coveralls.io/r/jacebrowning/memecomplete-desktop) [![Scrutinizer Code Quality](http://img.shields.io/scrutinizer/g/jacebrowning/memecomplete-desktop.svg)](https://scrutinizer-ci.com/g/jacebrowning/memecomplete-desktop/?branch=master)<br>Usage: [![PyPI Version](http://img.shields.io/pypi/v/memecomplete-desktop.svg)](https://pypi.python.org/pypi/memecomplete-desktop) [![PyPI Downloads](http://img.shields.io/pypi/dm/memecomplete-desktop.svg)](https://pypi.python.org/pypi/memecomplete-desktop)
 
 # Overview
 
-Desktop client for https://memegen.link.
+Desktop client for https://memecomplete.com.
 
 # Setup
 
 ## Requirements
 
-* Python 3.3+
+* Python 3.6+
 * SpeechRecognition requirements: https://github.com/Uberi/speech_recognition#requirements
   * macOS: `$ brew install flac portaudio swig`
 
@@ -17,14 +17,14 @@ Desktop client for https://memegen.link.
 Install the client with pip:
 
 ```sh
-$ pip install memegen-desktop
+$ pip install memecomplete-desktop
 ```
 
 or directly from the source code:
 
 ```sh
-$ git clone https://github.com/jacebrowning/memegen-desktop.git
-$ cd memegen-desktop
+$ git clone https://github.com/jacebrowning/memecomplete-desktop.git
+$ cd memecomplete-desktop
 $ python setup.py install
 ```
 
@@ -33,5 +33,5 @@ $ python setup.py install
 Launch the GUI from the command-line:
 
 ```sh
-$ memegen
+$ memecomplete
 ```

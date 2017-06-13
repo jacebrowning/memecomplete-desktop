@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Setup script for memegen-desktop."""
+"""Setup script for memecomplete-desktop."""
 
 import os
 import sys
@@ -8,28 +8,28 @@ import sys
 import setuptools
 
 
-PACKAGE_NAME = 'memegen'
-MINIMUM_PYTHON_VERSION = 3, 3
+PACKAGE_NAME = 'memecomplete'
+MINIMUM_PYTHON_VERSION = 3, 6
 
 
 def check_python_version():
     """Exit when the Python version is too low."""
     if sys.version_info < MINIMUM_PYTHON_VERSION:
-        sys.exit("Python {}.{}+ is required.".format(*MINIMUM_PYTHON_VERSION))
+        sys.exit("Python {0}.{1}+ is required.".format(*MINIMUM_PYTHON_VERSION))
 
 
-def read_package_variable(key):
+def read_package_variable(key, filename='__init__.py'):
     """Read the value of a variable from the package without importing."""
-    module_path = os.path.join(PACKAGE_NAME, '__init__.py')
+    module_path = os.path.join(PACKAGE_NAME, filename)
     with open(module_path) as module:
         for line in module:
-            parts = line.strip().split(' ')
-            if parts and parts[0] == key:
+            parts = line.strip().split(' ', 2)
+            if parts[:-1] == [key, '=']:
                 return parts[-1].strip("'")
-    assert 0, "'{0}' not found in '{1}'".format(key, module_path)
+    sys.exit("'{0}' not found in '{1}'".format(key, module_path))
 
 
-def read_descriptions():
+def build_description():
     """Build a description for the project from documentation files."""
     try:
         readme = open("README.rst").read()
@@ -41,25 +41,26 @@ def read_descriptions():
 
 
 check_python_version()
+
 setuptools.setup(
     name=read_package_variable('__project__'),
     version=read_package_variable('__version__'),
 
-    description="Desktop client for https://memegen.link.",
-    url='https://github.com/jacebrowning/memegen-desktop',
+    description="Desktop client for https://memecomplete.com.",
+    url='https://github.com/jacebrowning/memecomplete-desktop',
     author='Jace Browning',
     author_email='jacebrowning@gmail.com',
 
     packages=setuptools.find_packages(),
 
     entry_points={'console_scripts': [
-        "memegen = memegen.gui:main"
+        'memecomplete = memecomplete.gui:main',
     ]},
 
-    long_description=read_descriptions(),
+    long_description=build_description(),
     license='MIT',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: MacOS X',
         'Environment :: Win32 (MS Windows)',
         'Environment :: X11 Applications',
@@ -67,14 +68,17 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Games/Entertainment',
         'Topic :: Multimedia',
     ],
 
-    install_requires=open("requirements.txt").readlines(),
+    install_requires=[
+        "click ~= 6.6",
+        "requests ~= 2.11.1",
+        "Pillow ~= 3.3.1",
+        "SpeechRecognition ~= 3.4.6",
+        "PyAudio ~= 0.2.9",
+        "pocketsphinx ~= 0.1.3",
+    ]
 )
