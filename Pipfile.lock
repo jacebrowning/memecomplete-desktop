@@ -1,10 +1,10 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a6403182859893a2632cad586072206c7362a10f1abab7cfa412e36fe99b3188"
+            "sha256": "f07440628ef01ede9890b94ba13818da064941b33fe4acc5046b7fb26e1e8ea1"
         },
         "requires": {
-            "python_version": "3.6"
+            "python_version": "3.5"
         },
         "sources": [
             {

@@ -8,7 +8,7 @@ Desktop client for https://memecomplete.com.
 
 ## Requirements
 
-* Python 3.6+
+* Python 3.5+
 * SpeechRecognition requirements: https://github.com/Uberi/speech_recognition#requirements
   * macOS: `$ brew install flac portaudio swig`
 

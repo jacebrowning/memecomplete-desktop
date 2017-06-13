@@ -9,7 +9,7 @@ import setuptools
 
 
 PACKAGE_NAME = 'memecomplete'
-MINIMUM_PYTHON_VERSION = 3, 6
+MINIMUM_PYTHON_VERSION = 3, 5
 
 
 def check_python_version():
@@ -68,6 +68,8 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Topic :: Games/Entertainment',
         'Topic :: Multimedia',
