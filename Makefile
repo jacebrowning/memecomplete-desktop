@@ -100,7 +100,8 @@ $(METADATA): $(PYTHON) setup.py
 	@ touch $@
 
 $(PYTHON) $(PIP):
-	pipenv --python=python3.5
+	pipenv --python=$(SYS_PYTHON)
+	pipenv run pip --version
 
 # CHECKS #######################################################################
 
