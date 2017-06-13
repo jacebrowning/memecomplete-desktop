@@ -122,6 +122,7 @@ class Application:  # pylint: disable=too-many-instance-attributes
         if not text:
             return
 
+        log.info("Input text: %s", text)
         matches = self._get_matches(text)
 
         if matches:
@@ -146,7 +147,7 @@ class Application:  # pylint: disable=too-many-instance-attributes
             source='memecomplete-desktop',
         )
 
-        log.info("Finding matches: %s %s", url, data)
+        log.info("Finding matches: %s", url)
         response = requests.get(url, params=data)
 
         return response.json()
@@ -202,13 +203,14 @@ class SpeechRecognizer(threading.Thread):
     def configure(self):
         log.info("Configuring speech recognition...")
         self.recognizer = speech_recognition.Recognizer()
-        self.recognizer.git  = 1500
+        self.recognizer.energy_threshold = 1500
+        self.recognizer.dynamic_energy_threshold = True
         self.recognizer.dynamic_energy_adjustment_ratio = 3
         self.microphone = speech_recognition.Microphone()
         with self.microphone as source:
             log.info("Adjusting for ambient noise...")
             self.recognizer.adjust_for_ambient_noise(source, duration=3)
-            log.info("Engery threshold: %s", self.recognizer.energy_threshold)
+            log.info("Energy threshold: %s", self.recognizer.energy_threshold)
 
     def loop(self):
         log.info("Starting speech recognition loop...")
@@ -254,7 +256,7 @@ class SpeechRecognizer(threading.Thread):
 def main(speech=True):
     global speech_recognition
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     logging.getLogger('requests').setLevel(logging.WARNING)
 
     if not speech:
