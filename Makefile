@@ -208,7 +208,7 @@ PYINSTALLER := pipenv run pyinstaller
 PYINSTALLER_MAKESPEC := pipenv run pyi-makespec
 
 DIST_FILES := dist/*.tar.gz dist/*.whl
-EXE_FILES := dist/$(PROJECT).*
+EXE_FILES := dist/$(PROJECT).tar.gz dist/$(PROJECT).whl
 
 .PHONY: dist
 dist: install $(DIST_FILES)
