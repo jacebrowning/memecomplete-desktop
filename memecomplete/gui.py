@@ -141,7 +141,7 @@ class Application:  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def _get_matches(text):
-        url = "https://memecomplete.herokuapp.com/api/memes/"
+        url = "https://memecomplete.com/api/memes/"
         data = dict(
             text=text,
             source='memecomplete-desktop',
