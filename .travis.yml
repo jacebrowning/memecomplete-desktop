@@ -3,6 +3,12 @@ python:
   - 3.5
   - 3.6
 
+addons:
+  apt_packages:
+    - swig
+    - libpulse-dev
+    - portaudio19-dev
+
 cache:
   pip: true
   directories:
