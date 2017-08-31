@@ -13,7 +13,7 @@ else:
     notify = Notifier.notify
 
 
-watch_paths = ["demo", "tests"]
+watch_paths = ["memecomplete", "tests"]
 
 
 class Options(object):

@@ -34,7 +34,7 @@ class Application:  # pylint: disable=too-many-instance-attributes
 
         # Configure root window
         self.root = tk.Tk()
-        self.root.title("{} (v{})".format("Meme Complete Dekstop", __version__))
+        self.root.title(f"Meme Complete Desktop (v{__version__})")
         self.root.minsize(500, 500)
 
         # Configure speech recognition
@@ -256,7 +256,8 @@ class SpeechRecognizer(threading.Thread):
 def main(speech=True):
     global speech_recognition
 
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    logging.basicConfig(level=logging.INFO,
+                        format="%(levelname)s: %(message)s")
     logging.getLogger('requests').setLevel(logging.WARNING)
 
     if not speech:

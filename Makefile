@@ -8,6 +8,10 @@ PACKAGES := $(PACKAGE) tests
 CONFIG := $(wildcard *.py)
 MODULES := $(wildcard $(PACKAGE)/*.py)
 
+# Python settings
+PYTHON_MAJOR ?= 3
+PYTHON_MINOR ?= 6
+
 # System paths
 PLATFORM := $(shell python -c 'import sys; print(sys.platform)')
 ifneq ($(findstring win32, $(PLATFORM)), )
@@ -209,7 +213,7 @@ PYINSTALLER := pipenv run pyinstaller
 PYINSTALLER_MAKESPEC := pipenv run pyi-makespec
 
 DIST_FILES := dist/*.tar.gz dist/*.whl
-EXE_FILES := dist/$(PROJECT).tar.gz dist/$(PROJECT).whl
+EXE_FILES := dist/$(PROJECT).*
 
 .PHONY: dist
 dist: install $(DIST_FILES)
